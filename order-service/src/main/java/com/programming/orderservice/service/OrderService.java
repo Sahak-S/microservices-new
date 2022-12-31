@@ -21,7 +21,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
 
     public void placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
@@ -38,7 +38,7 @@ public class OrderService {
                 .toList();
         //Զանգահարեք գույքագրման ծառայություն և պատվիրեք, եթե ապրանքը կա
         //ակցիա stock
-        InventoryResponse[] inventoryResponsArray = webClient.get()
+        InventoryResponse[] inventoryResponsArray = webClientBuilder.build().get()
                 .uri("http://localhost:8082/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode",skuCodes).build())
                 .retrieve()
@@ -51,12 +51,9 @@ public class OrderService {
         }else {
             throw new IllegalArgumentException("ապրանքը պահեստում չէ խնդրում ենք փորցել կրկին");
         }
-
-
     }
 
     private OrderLineItems mapToDto(OrderLineItemsDto orderLineItemsDto) {
-
         OrderLineItems orderLineItems = new OrderLineItems();
         orderLineItems.setPrice(orderLineItemsDto.getPrice());
         orderLineItems.setQuantity(orderLineItemsDto.getQuantity());
